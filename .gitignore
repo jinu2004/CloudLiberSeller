@@ -13,7 +13,7 @@ build/
 *.iml
 *.ipr
 out/
-!**/src/main/**/out/
+src/main/kotlin/networking/ApiRouter.kt
 !**/src/test/**/out/
 
 ### Eclipse ###
@@ -40,3 +40,4 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+a

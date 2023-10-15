@@ -29,10 +29,17 @@ dependencies {
     implementation("org.jetbrains.compose.material3:material3-desktop:1.2.1")
     implementation("io.ktor:ktor-client:2.3.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("media.kamel:kamel-image:0.7.3")
+    implementation("io.ktor:ktor-client-apache5:2.3.5")
+    implementation("io.ktor:ktor-client-serialization:2.3.5")
+    implementation("io.ktor:ktor-client-logging:2.3.5")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
 
 
 compose.desktop {
+
     application {
         mainClass = "MainKt"
 

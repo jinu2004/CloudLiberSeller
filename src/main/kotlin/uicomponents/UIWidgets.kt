@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -16,9 +15,9 @@ import charts.pie.PieChartConfig
 import charts.pie.PieChartData
 import charts.pie.PieChartWithLegend
 import charts.utility.ChartAnimation
-import org.jetbrains.skiko.toImage
-import java.net.URL
-import javax.imageio.ImageIO
+import io.kamel.core.Resource
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 
 
 @Composable
@@ -86,12 +85,16 @@ fun bookChart() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun listOfNewOrders() {
     ElevatedCard(modifier = Modifier.width(500.dp).height(500.dp).padding(10.dp)) {
-
+        val painterResource: Resource<Painter> = asyncPainterResource("https://www.bing.com/th?id=OADD2.9964372890914_1PNQIJVZEQHSBV7CS5&pid=21.2&c=3&w=300&h=157&dynsize=1&qlt=90")
+        KamelImage(painterResource, null)
     }
 }
+
+
 
 
 
