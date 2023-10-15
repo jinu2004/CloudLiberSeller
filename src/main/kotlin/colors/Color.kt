@@ -139,7 +139,7 @@ val darkColor = darkColorScheme(
     surfaceTint = md_theme_dark_surfaceTint,
     errorContainer = md_theme_dark_errorContainer,
     inversePrimary = md_theme_dark_inversePrimary,
-    inverseSurface = md_theme_dark_inverseSurface
+    inverseSurface = md_theme_dark_inverseSurface,
 )
 val lightColor = lightColorScheme(
     primary = md_theme_light_primary,
