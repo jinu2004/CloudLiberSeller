@@ -1,8 +1,5 @@
 package colors
 
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
@@ -22,21 +19,16 @@ val md_theme_light_onTertiaryContainer = Color(0xFF001F26)
 val md_theme_light_error = Color(0xFFBA1A1A)
 val md_theme_light_errorContainer = Color(0xFFFFDAD6)
 val md_theme_light_onError = Color(0xFFFFFFFF)
-val md_theme_light_onErrorContainer = Color(0xFF410002)
 val md_theme_light_background = Color(0xFFFBFDF8)
 val md_theme_light_onBackground = Color(0xFF191C19)
 val md_theme_light_surface = Color(0xFFFBFDF8)
 val md_theme_light_onSurface = Color(0xFF191C19)
 val md_theme_light_surfaceVariant = Color(0xFFDDE5DB)
-val md_theme_light_onSurfaceVariant = Color(0xFF414941)
 val md_theme_light_outline = Color(0xFF717971)
 val md_theme_light_inverseOnSurface = Color(0xFFF0F1EC)
 val md_theme_light_inverseSurface = Color(0xFF2E312E)
 val md_theme_light_inversePrimary = Color(0xFF7EDA9A)
-val md_theme_light_shadow = Color(0xFF000000)
 val md_theme_light_surfaceTint = Color(0xFF006D3A)
-val md_theme_light_outlineVariant = Color(0xFFC1C9BF)
-val md_theme_light_scrim = Color(0xFF000000)
 
 val md_theme_dark_primary = Color(0xFF7EDA9A)
 val md_theme_dark_onPrimary = Color(0xFF00391C)
@@ -53,64 +45,24 @@ val md_theme_dark_onTertiaryContainer = Color(0xFFBEEAF6)
 val md_theme_dark_error = Color(0xFFFFB4AB)
 val md_theme_dark_errorContainer = Color(0xFF93000A)
 val md_theme_dark_onError = Color(0xFF690005)
-val md_theme_dark_onErrorContainer = Color(0xFFFFDAD6)
 val md_theme_dark_background = Color(0xFF191C19)
 val md_theme_dark_onBackground = Color(0xFFE1E3DE)
 val md_theme_dark_surface = Color(0xFF191C19)
 val md_theme_dark_onSurface = Color(0xFFE1E3DE)
 val md_theme_dark_surfaceVariant = Color(0xFF414941)
-val md_theme_dark_onSurfaceVariant = Color(0xFFC1C9BF)
 val md_theme_dark_outline = Color(0xFF8B938A)
 val md_theme_dark_inverseOnSurface = Color(0xFF191C19)
 val md_theme_dark_inverseSurface = Color(0xFFE1E3DE)
 val md_theme_dark_inversePrimary = Color(0xFF006D3A)
-val md_theme_dark_shadow = Color(0xFF000000)
 val md_theme_dark_surfaceTint = Color(0xFF7EDA9A)
-val md_theme_dark_outlineVariant = Color(0xFF414941)
-val md_theme_dark_scrim = Color(0xFF000000)
 
 
-val seed = Color(0xFF9BDEAC)
 
 
-/**
- * <a href="https://material.io/design/color/the-color-system.html"
- * class="external" target="_blank">Material Design color system</a>.
- *
- * The Material Design color system can help you create a color theme that
- * reflects your brand or style.
- *
- * ![Color
- * image](https://developer.android.com/images/reference/androidx/compose/material/color.png)
- *
- * To create a light set of colors using the baseline values, use
- * [lightColors] To create a dark set of colors using the baseline values,
- * use [darkColors]
- *
- * The primary color is the color displayed most frequently across your
- * app’s screens and components. The primary variant color is used to
- * distinguish two elements of the app using the primary color, such as the
- * top app bar and the system bar. The secondary color provides more ways
- * to accent and distinguish your product. Secondary colors are best for:
- * - Floating action buttons
- * - Selection controls, like checkboxes and radio buttons
- * - Highlighting selected text
- * - Links and headlines The secondary variant color is used to distinguish
- *   two elements of the app using the secondary color. The background
- *   color appears behind scrollable content. The surface color is used on
- *   surfaces of components, such as cards, sheets and menus. The error
- *   color is used to indicate error within components, such as text
- *   fields. Color used for text and icons displayed on top of the primary
- *   color. Color used for text and icons displayed on top of the secondary
- *   color. Color used for text and icons displayed on top of the
- *   background color. Color used for text and icons displayed on top of
- *   the surface color. Color used for text and icons displayed on top of
- *   the error color. Whether this Colors are considered as a 'light' or
- *   'dark' set of colors. This affects default behavior for some
- *   components: for example, in a light theme a [TopAppBar] will by
- *   default for its background color, when in a dark theme it will use
- *   [surface].
- */
+
+
+
+
 
 val darkColor = darkColorScheme(
     primary = md_theme_dark_primary,

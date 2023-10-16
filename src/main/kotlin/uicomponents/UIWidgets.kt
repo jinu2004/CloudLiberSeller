@@ -1,40 +1,48 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package uicomponents
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import charts.pie.LegendOrientation
-import charts.pie.PieChartConfig
-import charts.pie.PieChartData
-import charts.pie.PieChartWithLegend
-import charts.utility.ChartAnimation
+import androidx.compose.ui.unit.sp
+import com.aay.compose.baseComponents.model.LegendPosition
+import com.aay.compose.donutChart.DonutChart
+import com.aay.compose.donutChart.model.PieChartData
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import navcontroller.ListOfScreen
+import navcontroller.NavController
+import networking.dataclass.BookPreview
 
 
 @Composable
-fun navigationDock(items: List<RailItem>) {
-    var selected by remember { mutableStateOf(0) }
+fun navigationDock(items: List<ListOfScreen>,currentScreen:String,modifier: Modifier = Modifier,navController: NavController) {
     NavigationRail(
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.surface,
-        modifier = Modifier,
+        modifier = modifier,
     ) {
-        items.forEachIndexed { index, railItem ->
-            val icon = if (index == selected) railItem.selectedIcon else railItem.unSelectedIcon
+        items.forEachIndexed { _, railItem ->
+            val icon = if (currentScreen == railItem.label) railItem.selectedIcon else railItem.unSelectedIcon
             val colors =
-                if (index == selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                if (currentScreen == railItem.label) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
             NavigationRailItem(
-                selected = index == selected,
-                onClick = { selected = index },
+                selected = currentScreen == railItem.label,
+                onClick = { navController.navigate(railItem.label) },
                 icon = { Icon(icon, null, tint = colors) },
                 modifier = Modifier,
                 colors = NavigationRailItemDefaults.colors(indicatorColor = MaterialTheme.colorScheme.primary),
@@ -43,56 +51,230 @@ fun navigationDock(items: List<RailItem>) {
     }
 }
 
+
+@Composable
+fun NewOrder(list: List<BookPreview>, modifier: Modifier = Modifier) {
+    Column( modifier = modifier) {
+        Text(
+            "New Orders",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight(1000),
+        )
+        LazyColumn {
+            items(list) {
+                newOrderCard(it)
+            }
+
+        }
+
+
+    }
+}
+
+@Composable
+fun newOrderCard(item: BookPreview) {
+    ElevatedCard(Modifier.padding(top = 10.dp)){
+        Row(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            ElevatedCard(
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface),
+                modifier = Modifier.width(80.dp).height(90.dp).padding(5.dp)
+            ) {
+                val painterResource: Resource<Painter> = asyncPainterResource(item.coverpage)
+                KamelImage(
+                    resource = painterResource,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                )
+            }
+
+            Column(Modifier.padding(start = 20.dp, top = 5.dp).fillMaxSize(0.5f)) {
+                Text(
+                    text = "Tittle",
+                    modifier = Modifier,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.Monospace,
+                    textDecoration = null,
+                    maxLines = 1,
+                    fontWeight = FontWeight(1000)
+                )
+                Text(
+                    text = item.title,
+                    modifier = Modifier,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily.Monospace,
+                    textDecoration = null,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Column(Modifier.padding(start = 20.dp, top = 5.dp).fillMaxSize(0.5f)) {
+                Text(
+                    text = "Price",
+                    modifier = Modifier,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.Monospace,
+                    textDecoration = null,
+                    maxLines = 1,
+                    fontWeight = FontWeight(1000)
+                )
+                Text(
+                    text = "₹${item.price}",
+                    modifier = Modifier,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily.Monospace,
+                    textDecoration = null,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+fun pendingItemCard(item: BookPreview) {
+    ElevatedCard(Modifier.padding(top = 10.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            ElevatedCard(
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface),
+                modifier = Modifier.width(80.dp).height(90.dp).padding(5.dp)
+            ) {
+                val painterResource: Resource<Painter> = asyncPainterResource(item.coverpage)
+                KamelImage(
+                    resource = painterResource,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                )
+            }
+
+            Column(Modifier.padding(start = 20.dp, top = 5.dp).fillMaxSize(0.5f)) {
+                Text(
+                    text = "Tittle",
+                    modifier = Modifier,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.Monospace,
+                    textDecoration = null,
+                    maxLines = 1,
+                    fontWeight = FontWeight(1000)
+                )
+                Text(
+                    text = item.title,
+                    modifier = Modifier,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily.Monospace,
+                    textDecoration = null,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Column(Modifier.padding(start = 20.dp, top = 5.dp).fillMaxSize(0.5f)) {
+                Text(
+                    text = "Price",
+                    modifier = Modifier,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.Monospace,
+                    textDecoration = null,
+                    maxLines = 1,
+                    fontWeight = FontWeight(1000)
+                )
+                Text(
+                    text = "₹${item.price}",
+                    modifier = Modifier,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily.Monospace,
+                    textDecoration = null,
+                    maxLines = 1,
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+fun pendingBook(list: List<BookPreview>, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        Text(
+            "Pending",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight(1000),
+        )
+        LazyColumn {
+            items(list) {
+                pendingItemCard(it)
+
+            }
+
+
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun bookChart() {
-    val data = listOf(
+fun DonutChartSample(modifier: Modifier = Modifier) {
+    val testPieChartData: List<PieChartData> = listOf(
         PieChartData(
-            name = "Issued",
-            value = 10.0,
-            color = MaterialTheme.colorScheme.primary,
+            partName = "Issued",
+            data = 500.0,
+            color = Color(0xFF0B666A),
         ),
         PieChartData(
-            name = "Returned",
-            value = 20.0,
-            color = MaterialTheme.colorScheme.secondary,
+            partName = "Returned",
+            data = 700.0,
+            color = Color(0xFF35A29F),
         ),
         PieChartData(
-            name = "Pending",
-            value = 30.0,
-            color = MaterialTheme.colorScheme.tertiaryContainer,
+            partName = "Pending",
+            data = 500.0,
+            color = Color(0xFF97FEED),
         ),
     )
-    ElevatedCard(modifier = Modifier.padding(10.dp).width(500.dp).height(500.dp)) {
-        Row {
+
+    ElevatedCard(modifier = modifier) {
+        Row(Modifier.padding(start = 30.dp, top = 10.dp)) {
             Text(
                 "Books",
-                fontSize = TextUnit(20f, TextUnitType.Sp),
-                modifier = Modifier.padding(start = 30.dp, top = 10.dp)
+                fontWeight = FontWeight(1000)
             )
         }
-        PieChartWithLegend(
-            pieChartData = data,
-            modifier = Modifier.padding(top = 40.dp, start = 80.dp, bottom = 40.dp, end = 80.dp).fillMaxSize(),
-            config = PieChartConfig(
-                thickness = 20.dp,
-                legendOrientation = LegendOrientation.VERTICAL,
-                legendPadding = 10.dp,
-            ),
-            animation = ChartAnimation.Simple()
-        )
-
+            DonutChart(
+                modifier = Modifier.fillMaxSize(),
+                pieChartData = testPieChartData,
+                centerTitle = "Books",
+                centerTitleStyle = TextStyle(color = Color(0xFF071952)),
+                outerCircularColor = Color.LightGray,
+                innerCircularColor = Color.Gray,
+                ratioLineColor = Color.LightGray,
+                legendPosition = LegendPosition.TOP
+            )
+        }
     }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun listOfNewOrders() {
-    ElevatedCard(modifier = Modifier.width(500.dp).height(500.dp).padding(10.dp)) {
-        val painterResource: Resource<Painter> = asyncPainterResource("https://www.bing.com/th?id=OADD2.9964372890914_1PNQIJVZEQHSBV7CS5&pid=21.2&c=3&w=300&h=157&dynsize=1&qlt=90")
-        KamelImage(painterResource, null)
-    }
-}
+
+
+
 
 
 
