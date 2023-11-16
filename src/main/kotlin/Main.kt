@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.Notifications
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,9 +25,11 @@ import navcontroller.ListOfScreen
 import navcontroller.rememberNavController
 import uicomponents.navigationDock
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
+
 fun App() {
     val screens = ListOfScreen.entries.toList()
     val navController by rememberNavController(ListOfScreen.DashBord.label)
@@ -57,17 +59,17 @@ fun App() {
                     actions = {
                         Row {
                             IconButton(onClick = {}) {
-                                Icon(Icons.Rounded.Search, null)
+                                Icon(Icons.Outlined.Search, null)
                             }
                             IconButton(onClick = {}) {
-                                Icon(Icons.Rounded.Notifications, null)
+                                Icon(Icons.Outlined.Notifications, null)
                             }
                         }
                     },
                 )
             },
         ) {
-            Row(Modifier.padding(top = 80.dp)) {
+            Row(Modifier.padding(top = 60.dp)) {
                 navigationDock(screens,currentScreen = currentScreen,navController = navController)
                 CustomNavigationHost(navController)
             }

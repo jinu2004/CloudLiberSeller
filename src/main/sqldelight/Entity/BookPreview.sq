@@ -1,0 +1,11 @@
+CREATE TABLE BookPreview (
+  coverpage TEXT NOT NULL,
+  price TEXT NOT NULL,
+  rating TEXT NOT NULL,
+  title TEXT NOT NULL,
+  subgenre TEXT NOT NULL
+);
+selectAll: SELECT*FROM BookPreview;
+insert:
+INSERT INTO BookPreview(coverpage, price,rating,title,subgenre)
+VALUES (?,?,?,?,?);

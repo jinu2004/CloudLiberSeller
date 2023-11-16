@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.9.0"
     id("org.jetbrains.compose") version "1.5.0"
     kotlin("plugin.serialization") version "1.9.0"
+    id("app.cash.sqldelight") version "2.0.0"
 }
 
 group = "com.cloudliber"
@@ -40,18 +41,37 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.5")
     implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("io.github.thechance101:chart:Beta-0.0.5")
+    implementation("app.cash.sqldelight:sqlite-driver:2.0.0")
+    implementation("app.cash.sqldelight:coroutines-extensions:2.0.0")
+
+    implementation("dev.icerock.moko:mvvm-core:0.16.1") // only ViewModel, EventsDispatcher, Dispatchers.UI
+    implementation("dev.icerock.moko:mvvm-flow:0.16.1") // api mvvm-core, CFlow for native and binding extensions
+    implementation("dev.icerock.moko:mvvm-livedata:0.16.1") // api mvvm-core, LiveData and extensions
+    implementation("dev.icerock.moko:mvvm-state:0.16.1")
+
+    // compose multiplatform
+    implementation("dev.icerock.moko:mvvm-compose:0.16.1") // api mvvm-core, getViewModel for Compose Multiplatfrom
+    implementation("dev.icerock.moko:mvvm-flow-compose:0.16.1") // api mvvm-flow, binding extensions for Compose Multiplatfrom
+    implementation("dev.icerock.moko:mvvm-livedata-compose:0.16.1")
 }
 
-
+sqldelight{
+    databases{
+        create("Cloud_Liber_Seller"){
+            packageName.set("com.cloudliber")
+            srcDirs.setFrom("src/main/sqldelight")
+        }
+    }
+}
 compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "CloudLiberSeller"
             packageVersion = "1.0.0"
             vendor = "CloudLiber.com"
             copyright = "cloudLiber.com"
+            dependencies
             windows.apply {
                 shortcut = true
                 menu = true
@@ -62,24 +82,10 @@ compose.desktop {
                 shortcut = true
                 menuGroup = "CloudLiberSeller"
             }
-            macOS.apply { includeAllModules = true }
         }
     }
 }
 
 
-tasks.create<JavaExec>("obfuscateApp") {
-    dependsOn("packageReleaseMsi")
-
-    mainClass.set("proguard.ProGuard") // Replace with the ProGuard main class
-    classpath = files("$project.buildDir/libs/MyApp-1.0-SNAPSHOT.jar") // Replace with your JAR filename
-
-    workingDir = project.buildDir
-
-    doLast {
-        val outputPath = File(project.buildDir, "distributions")
-        outputs.dir(outputPath)
-    }
-}
 
 
