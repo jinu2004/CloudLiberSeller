@@ -25,11 +25,9 @@ import navcontroller.ListOfScreen
 import navcontroller.rememberNavController
 import uicomponents.navigationDock
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-
 fun App() {
     val screens = ListOfScreen.entries.toList()
     val navController by rememberNavController(ListOfScreen.DashBord.label)
@@ -70,10 +68,9 @@ fun App() {
             },
         ) {
             Row(Modifier.padding(top = 60.dp)) {
-                navigationDock(screens,currentScreen = currentScreen,navController = navController)
+                navigationDock(screens, currentScreen = currentScreen, navController = navController)
                 CustomNavigationHost(navController)
             }
-
 
 
         }
@@ -81,12 +78,12 @@ fun App() {
 }
 
 
-    fun main() = application {
-        Window(
-            onCloseRequest = ::exitApplication,
-            icon = painterResource("product_Logo/e70f5442-0b10-4f04-9c45-a7cf85257b18-7.ico"),
-            title = "CloudLiber Seller",
-        ) {
-            App()
-        }
+fun main() = application {
+    Window(
+        onCloseRequest = ::exitApplication,
+        icon = painterResource("product_Logo/e70f5442-0b10-4f04-9c45-a7cf85257b18-7.ico"),
+        title = "CloudLiber Seller",
+    ) {
+        App()
     }
+}

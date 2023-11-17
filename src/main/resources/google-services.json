@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "852490836258",
+    "project_id": "cloudliber-seller",
+    "storage_bucket": "cloudliber-seller.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852490836258:android:1f985152a07046aaaa6d7b",
+        "android_client_info": {
+          "package_name": "com.cloudliber.sellers_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiB47fY96YbnrKjd9c1KtjBClN8OyiR2s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

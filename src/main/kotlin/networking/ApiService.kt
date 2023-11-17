@@ -6,7 +6,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import networking.dataclass.BookPreview
 
-class ApiService(private val client: HttpClient) : AplServices {
+class ApiService(private val client: HttpClient) : RouterService {
     override suspend fun getData(): List<BookPreview> {
         return try {
             val response = client.get(ApiRouter.POSTS) {
@@ -32,4 +32,5 @@ class ApiService(private val client: HttpClient) : AplServices {
             emptyList()
         }
     }
+
 }

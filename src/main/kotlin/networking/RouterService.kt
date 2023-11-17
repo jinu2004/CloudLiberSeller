@@ -7,9 +7,8 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import networking.dataclass.BookPreview
 
-interface AplServices {
+interface RouterService {
     suspend fun getData():List<BookPreview>
-
     companion object{
         fun create():ApiService{
             return ApiService(client = HttpClient(Apache5){
@@ -19,7 +18,6 @@ interface AplServices {
                 install(ContentNegotiation){
                     json()
                 }
-
             })
         }
     }
