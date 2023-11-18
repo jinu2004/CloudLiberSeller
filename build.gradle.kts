@@ -44,16 +44,7 @@ dependencies {
     implementation("io.github.thechance101:chart:Beta-0.0.5")
     implementation("app.cash.sqldelight:sqlite-driver:2.0.0")
     implementation("app.cash.sqldelight:coroutines-extensions:2.0.0")
-
-    implementation("dev.icerock.moko:mvvm-core:0.16.1") // only ViewModel, EventsDispatcher, Dispatchers.UI
-    implementation("dev.icerock.moko:mvvm-flow:0.16.1") // api mvvm-core, CFlow for native and binding extensions
-    implementation("dev.icerock.moko:mvvm-livedata:0.16.1") // api mvvm-core, LiveData and extensions
-    implementation("dev.icerock.moko:mvvm-state:0.16.1")
-
-    // compose multiplatform
-    implementation("dev.icerock.moko:mvvm-compose:0.16.1") // api mvvm-core, getViewModel for Compose Multiplatfrom
-    implementation("dev.icerock.moko:mvvm-flow-compose:0.16.1") // api mvvm-flow, binding extensions for Compose Multiplatfrom
-    implementation("dev.icerock.moko:mvvm-livedata-compose:0.16.1")
+    implementation("com.darkrockstudios:mpfilepicker:2.1.0")
 }
 
 sqldelight{

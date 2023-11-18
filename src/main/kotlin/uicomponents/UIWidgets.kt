@@ -32,6 +32,9 @@ import networking.dataclass.BookPreview
 @Composable
 fun navigationDock(items: List<ListOfScreen>,currentScreen:String,modifier: Modifier = Modifier,navController: NavController) {
     NavigationRail(
+        header = {
+                 Card(modifier = Modifier.width(10.dp).height(10.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)){}
+        },
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.surface,
         modifier = modifier,
@@ -72,6 +75,7 @@ fun NewOrder(list: List<BookPreview>, modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun newOrderCard(item: BookPreview) {
     ElevatedCard(Modifier.padding(top = 10.dp)){

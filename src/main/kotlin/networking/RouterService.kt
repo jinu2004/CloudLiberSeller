@@ -9,10 +9,13 @@ import networking.dataclass.BookPreview
 
 interface RouterService {
     suspend fun getData():List<BookPreview>
+    suspend fun uploadImageToGoogleStorage(imageByte:ByteArray)
+
     companion object{
         fun create():ApiService{
             return ApiService(client = HttpClient(Apache5){
                 install(Logging) {
+                    logger = Logger.SIMPLE
                     level = LogLevel.ALL
                 }
                 install(ContentNegotiation){
