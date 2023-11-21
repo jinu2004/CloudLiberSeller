@@ -1,37 +1,43 @@
 package screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 import navcontroller.NavController
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 
 class AddBook(navController: NavController) {
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable
     fun View() {
         val genreExpand = remember { mutableStateOf(false) }
         val dateDialog = remember { mutableStateOf(false) }
+        val dateConfirm = remember { mutableStateOf(false) }
         val subGenreExpand = remember { mutableStateOf(false) }
-        var genre by rememberSaveable { mutableStateOf("Fiction") }
-        var subgenre by rememberSaveable { mutableStateOf("--select--") }
+        var genre by rememberSaveable { mutableStateOf("") }
+        var fileName by rememberSaveable { mutableStateOf("") }
+        var subgenre by rememberSaveable { mutableStateOf("") }
         var bookName by rememberSaveable { mutableStateOf("") }
         var author by rememberSaveable { mutableStateOf("") }
         var coverPage by rememberSaveable { mutableStateOf("") }
@@ -73,14 +79,23 @@ class AddBook(navController: NavController) {
         )
 
 
-        var datestate = rememberDatePickerState(initialDisplayMode = DisplayMode.Picker)
+        var datestate = rememberDatePickerState(
+            initialDisplayMode = DisplayMode.Picker,
+            initialDisplayedMonthMillis = System.currentTimeMillis()
+        )
+
+        var showFilePicker by remember { mutableStateOf(false) }
 
         val colorText = TextFieldDefaults.colors(
             unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
             unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            focusedContainerColor = MaterialTheme.colorScheme.surface
+            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface
         )
 
         val colors = DatePickerDefaults.colors(
@@ -92,13 +107,25 @@ class AddBook(navController: NavController) {
         )
 
         Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            modifier = Modifier.fillMaxSize().padding(10.dp)
+            modifier = Modifier.padding(30.dp).fillMaxSize(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
+
+            FilePicker(show = showFilePicker, fileExtensions = listOf("jpg", "png")) { file ->
+                if (file != null) {
+                    fileName = file.path
+                }
+                showFilePicker = !showFilePicker
+
+            }
+
             if (dateDialog.value)
                 DatePickerDialog(
                     confirmButton = {
-                        TextButton(onClick = {dateDialog.value = !dateDialog.value}, modifier = Modifier.align(Alignment.End)) {
+                        TextButton(onClick = {
+                            dateDialog.value = !dateDialog.value
+                            dateConfirm.value = !dateConfirm.value
+                        }, modifier = Modifier.align(Alignment.End)) {
                             Text("close")
                         }
                     },
@@ -111,35 +138,42 @@ class AddBook(navController: NavController) {
                     DatePicker(
                         state = dateState,
                         dateValidator = { it ->
-                            val instant = Instant.ofEpochMilli(it)
-                            true
+                            date = formatMillisecondsToDate(it)
+                            dateConfirm.value
                         },
                         colors = colors
                     )
                 }
 
 
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(50.dp)
-                ) {
-                    Box(modifier = Modifier.fillMaxWidth(0.5f)) {
+
+            Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                LazyColumn(modifier = Modifier.fillMaxWidth(0.5f).fillMaxHeight()) {
+                    item {
+                        Text(
+                            text = "BOOK DETAILS",
+                            fontWeight = FontWeight(1000),
+                            fontFamily = FontFamily(
+                                Font(
+                                    resource = "fonts/Mukta-Medium.ttf",
+                                    style = FontStyle.Normal
+                                )
+                            ),
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(20.dp)
+                        )
+                    }
+
+                    item {
                         OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = genre,
-                            onValueChange = { genre = it },
-                            maxLines = 1,
-                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 10.dp),
+                            value = bookName,
+                            onValueChange = { bookName = it },
+                            maxLines = 3,
+                            readOnly = false,
                             label = {
                                 Text(
-                                    "Select genre",
-                                    fontWeight = FontWeight(1000),
+                                    "Book Name", fontWeight = FontWeight(1000),
                                     fontFamily = FontFamily(
                                         Font(
                                             resource = "fonts/Mukta-Medium.ttf",
@@ -150,25 +184,10 @@ class AddBook(navController: NavController) {
                                     modifier = Modifier.padding(start = 10.dp)
                                 )
                             },
-                            trailingIcon = {
-                                IconButton(
-                                    onClick = { genreExpand.value = !genreExpand.value }
-                                ) {
-                                    Icon(Icons.Filled.ArrowDropDown, "")
-                                }
-                            },
                             colors = colorText,
-                        )
-                        DropdownMenu(
-                            expanded = genreExpand.value,
-                            onDismissRequest = { genreExpand.value = !genreExpand.value }) {
-                            DropdownMenuItem(onClick = {
-                                genre = "Fiction"
-                                genreExpand.value = !genreExpand.value
-                            }) {
+                            placeholder = {
                                 Text(
-                                    "Fiction",
-                                    fontWeight = FontWeight(1000),
+                                    "Book Name", fontWeight = FontWeight(1000),
                                     fontFamily = FontFamily(
                                         Font(
                                             resource = "fonts/Mukta-Medium.ttf",
@@ -179,36 +198,202 @@ class AddBook(navController: NavController) {
                                     modifier = Modifier.padding(start = 10.dp)
                                 )
                             }
-                            DropdownMenuItem(onClick = {
-                                genre = "Non Fiction"
-                                genreExpand.value = !genreExpand.value
-                            }) {
-                                Text(
-                                    "Non Fiction", fontWeight = FontWeight(1000),
-                                    fontFamily = FontFamily(
-                                        Font(
-                                            resource = "fonts/Mukta-Medium.ttf",
-                                            style = FontStyle.Normal
+                        )
+                    }
+
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(start = 20.dp, top = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Box(modifier = Modifier.fillMaxWidth(0.45f)) {
+                                OutlinedTextField(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    value = genre,
+                                    onValueChange = {
+                                        genre = it
+                                        subgenre = ""
+                                    },
+                                    maxLines = 1,
+                                    readOnly = true,
+                                    label = {
+                                        Text(
+                                            "Select genre",
+                                            fontWeight = FontWeight(1000),
+                                            fontFamily = FontFamily(
+                                                Font(
+                                                    resource = "fonts/Mukta-Medium.ttf",
+                                                    style = FontStyle.Normal
+                                                )
+                                            ),
+                                            fontSize = 16.sp,
+                                            modifier = Modifier.padding(start = 10.dp)
                                         )
-                                    ),
-                                    fontSize = 16.sp,
-                                    modifier = Modifier.padding(start = 10.dp)
+                                    },
+                                    trailingIcon = {
+                                        IconButton(
+                                            onClick = { genreExpand.value = !genreExpand.value }
+                                        ) {
+                                            Icon(Icons.Filled.ArrowDropDown, "")
+                                        }
+                                    },
+                                    colors = colorText,
                                 )
+                                DropdownMenu(
+                                    expanded = genreExpand.value,
+                                    onDismissRequest = { genreExpand.value = !genreExpand.value })
+                                {
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            genre = "Fiction"
+                                            genreExpand.value = !genreExpand.value
+                                        },
+                                        text = {
+                                            Text(
+                                                "Fiction", fontWeight = FontWeight(1000),
+                                                fontFamily = FontFamily(
+                                                    Font(
+                                                        resource = "fonts/Mukta-Medium.ttf",
+                                                        style = FontStyle.Normal
+                                                    )
+                                                ),
+                                                fontSize = 16.sp,
+                                                modifier = Modifier.padding(start = 10.dp)
+                                            )
+                                        })
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            genre = "Non Fiction"
+                                            genreExpand.value = !genreExpand.value
+                                        },
+                                        text = {
+                                            Text(
+                                                "Non Fiction", fontWeight = FontWeight(1000),
+                                                fontFamily = FontFamily(
+                                                    Font(
+                                                        resource = "fonts/Mukta-Medium.ttf",
+                                                        style = FontStyle.Normal
+                                                    )
+                                                ),
+                                                fontSize = 16.sp,
+                                                modifier = Modifier.padding(start = 10.dp)
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                OutlinedTextField(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    value = subgenre,
+                                    onValueChange = { subgenre = it },
+                                    maxLines = 1,
+                                    readOnly = true,
+                                    label = {
+                                        Text(
+                                            "Select category",
+                                            fontWeight = FontWeight(1000),
+                                            fontFamily = FontFamily(
+                                                Font(
+                                                    resource = "fonts/Mukta-Medium.ttf",
+                                                    style = FontStyle.Normal
+                                                )
+                                            ),
+                                            fontSize = 16.sp,
+                                            modifier = Modifier.padding(start = 10.dp)
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        IconButton(
+                                            onClick = { subGenreExpand.value = !subGenreExpand.value }
+                                        ) {
+                                            Icon(Icons.Filled.ArrowDropDown, "")
+                                        }
+                                    },
+                                    placeholder = {
+                                        Text(
+                                            "--Select category--",
+                                            fontWeight = FontWeight(1000),
+                                            fontFamily = FontFamily(
+                                                Font(
+                                                    resource = "fonts/Mukta-Medium.ttf",
+                                                    style = FontStyle.Normal
+                                                )
+                                            ),
+                                            fontSize = 16.sp,
+                                            modifier = Modifier.padding(start = 10.dp)
+                                        )
+                                    },
+                                    colors = colorText,
+                                )
+                                DropdownMenu(
+                                    expanded = subGenreExpand.value,
+                                    onDismissRequest = { subGenreExpand.value = !subGenreExpand.value }) {
+
+                                    if (genre == "Fiction") {
+                                        fictionSubgenre.forEachIndexed { index, s ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    subgenre = s
+                                                    subGenreExpand.value = !subGenreExpand.value
+                                                },
+                                                text = {
+                                                    Text(
+                                                        s, fontWeight = FontWeight(1000),
+                                                        fontFamily = FontFamily(
+                                                            Font(
+                                                                resource = "fonts/Mukta-Medium.ttf",
+                                                                style = FontStyle.Normal
+                                                            )
+                                                        ),
+                                                        fontSize = 16.sp,
+                                                        modifier = Modifier.padding(start = 10.dp)
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    } else if (genre == "Non Fiction") {
+                                        nonFictionSubgenre.forEachIndexed { index, s ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    subgenre = s
+                                                    subGenreExpand.value = !subGenreExpand.value
+                                                },
+                                                text = {
+                                                    Text(
+                                                        s, fontWeight = FontWeight(1000),
+                                                        fontFamily = FontFamily(
+                                                            Font(
+                                                                resource = "fonts/Mukta-Medium.ttf",
+                                                                style = FontStyle.Normal
+                                                            )
+                                                        ),
+                                                        fontSize = 16.sp,
+                                                        modifier = Modifier.padding(start = 10.dp)
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    }
+
+
+                                }
                             }
                         }
                     }
 
-                    Box(modifier = Modifier.fillMaxWidth()) {
+                    item {
                         OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = subgenre,
-                            onValueChange = { subgenre = it },
-                            maxLines = 1,
-                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 10.dp),
+                            value = author,
+                            onValueChange = { author = it },
+                            maxLines = 3,
+                            readOnly = false,
                             label = {
                                 Text(
-                                    "Select category",
-                                    fontWeight = FontWeight(1000),
+                                    "Author Name", fontWeight = FontWeight(1000),
                                     fontFamily = FontFamily(
                                         Font(
                                             resource = "fonts/Mukta-Medium.ttf",
@@ -219,207 +404,298 @@ class AddBook(navController: NavController) {
                                     modifier = Modifier.padding(start = 10.dp)
                                 )
                             },
-                            trailingIcon = {
-                                IconButton(
-                                    onClick = { subGenreExpand.value = !subGenreExpand.value }
-                                ) {
-                                    Icon(Icons.Filled.ArrowDropDown, "")
-                                }
+                            colors = colorText,
+                            placeholder = {
+                                Text(
+                                    "Author Name", fontWeight = FontWeight(1000),
+                                    fontFamily = FontFamily(
+                                        Font(
+                                            resource = "fonts/Mukta-Medium.ttf",
+                                            style = FontStyle.Normal
+                                        )
+                                    ),
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            }
+                        )
+                    }
+
+                    item {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 10.dp),
+                            value = publisher,
+                            onValueChange = { publisher = it },
+                            maxLines = 3,
+                            readOnly = false,
+                            label = {
+                                Text(
+                                    "Publisher Name", fontWeight = FontWeight(1000),
+                                    fontFamily = FontFamily(
+                                        Font(
+                                            resource = "fonts/Mukta-Medium.ttf",
+                                            style = FontStyle.Normal
+                                        )
+                                    ),
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
                             },
                             colors = colorText,
+                            placeholder = {
+                                Text(
+                                    "Publisher Name", fontWeight = FontWeight(1000),
+                                    fontFamily = FontFamily(
+                                        Font(
+                                            resource = "fonts/Mukta-Medium.ttf",
+                                            style = FontStyle.Normal
+                                        )
+                                    ),
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            }
                         )
-                        DropdownMenu(
-                            expanded = subGenreExpand.value,
-                            onDismissRequest = { subGenreExpand.value = !subGenreExpand.value }) {
+                    }
 
-                            if (genre == "Fiction") {
-                                fictionSubgenre.forEachIndexed { index, s ->
-                                    DropdownMenuItem(onClick = {
-                                        subgenre = s
-                                        subGenreExpand.value = !subGenreExpand.value
-                                    }) {
-                                        Text(
-                                            s, fontWeight = FontWeight(1000),
-                                            fontFamily = FontFamily(
-                                                Font(
-                                                    resource = "fonts/Mukta-Medium.ttf",
-                                                    style = FontStyle.Normal
-                                                )
-                                            ),
-                                            fontSize = 16.sp,
-                                            modifier = Modifier.padding(start = 10.dp)
-                                        )
-                                    }
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(start = 20.dp, top = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(0.45f),
+                                value = price,
+                                onValueChange = { price = it },
+                                maxLines = 1,
+                                readOnly = false,
+                                label = {
+                                    Text(
+                                        "Price", fontWeight = FontWeight(1000),
+                                        fontFamily = FontFamily(
+                                            Font(
+                                                resource = "fonts/Mukta-Medium.ttf",
+                                                style = FontStyle.Normal
+                                            )
+                                        ),
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 10.dp)
+                                    )
+                                },
+                                colors = colorText,
+                                placeholder = {
+                                    Text(
+                                        "Price", fontWeight = FontWeight(1000),
+                                        fontFamily = FontFamily(
+                                            Font(
+                                                resource = "fonts/Mukta-Medium.ttf",
+                                                style = FontStyle.Normal
+                                            )
+                                        ),
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 10.dp)
+                                    )
                                 }
-                            } else if (genre == "Non Fiction") {
-                                nonFictionSubgenre.forEachIndexed { index, s ->
-                                    DropdownMenuItem(onClick = {
-                                        subgenre = s
-                                        subGenreExpand.value = !subGenreExpand.value
-                                    }) {
-                                        Text(
-                                            s, fontWeight = FontWeight(1000),
-                                            fontFamily = FontFamily(
-                                                Font(
-                                                    resource = "fonts/Mukta-Medium.ttf",
-                                                    style = FontStyle.Normal
-                                                )
-                                            ),
-                                            fontSize = 16.sp,
-                                            modifier = Modifier.padding(start = 10.dp)
-                                        )
-                                    }
+                            )
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = rate,
+                                onValueChange = { rate = it },
+                                maxLines = 2,
+                                readOnly = false,
+                                label = {
+                                    Text(
+                                        "Rating", fontWeight = FontWeight(1000),
+                                        fontFamily = FontFamily(
+                                            Font(
+                                                resource = "fonts/Mukta-Medium.ttf",
+                                                style = FontStyle.Normal
+                                            )
+                                        ),
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 10.dp)
+                                    )
+                                },
+                                colors = colorText,
+                                placeholder = {
+                                    Text(
+                                        "Rating", fontWeight = FontWeight(1000),
+                                        fontFamily = FontFamily(
+                                            Font(
+                                                resource = "fonts/Mukta-Medium.ttf",
+                                                style = FontStyle.Normal
+                                            )
+                                        ),
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 10.dp)
+                                    )
                                 }
+                            )
+                        }
+                    }
+
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(start = 20.dp, top = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(0.45f),
+                                value = fileName,
+                                onValueChange = { fileName = it },
+                                maxLines = 1,
+                                readOnly = true,
+                                label = {
+                                    Text(
+                                        "cover page", fontWeight = FontWeight(1000),
+                                        fontFamily = FontFamily(
+                                            Font(
+                                                resource = "fonts/Mukta-Medium.ttf",
+                                                style = FontStyle.Normal
+                                            )
+                                        ),
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 10.dp)
+                                    )
+                                },
+                                colors = colorText,
+                                placeholder = {
+                                    Text(
+                                        "cover page", fontWeight = FontWeight(1000),
+                                        fontFamily = FontFamily(
+                                            Font(
+                                                resource = "fonts/Mukta-Medium.ttf",
+                                                style = FontStyle.Normal
+                                            )
+                                        ),
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 10.dp)
+                                    )
+                                },
+                                leadingIcon = {
+                                    IconButton(
+                                        onClick = { showFilePicker = !showFilePicker }
+                                    ) {
+                                        Icon(painterResource("drawbles/imagePlace Holder.svg"), null)
+                                    }
+
+                                }
+                            )
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = date,
+                                onValueChange = { date = it },
+                                maxLines = 2,
+                                readOnly = true,
+                                label = {
+                                    Text(
+                                        "Date of publishing", fontWeight = FontWeight(1000),
+                                        fontFamily = FontFamily(
+                                            Font(
+                                                resource = "fonts/Mukta-Medium.ttf",
+                                                style = FontStyle.Normal
+                                            )
+                                        ),
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 10.dp)
+                                    )
+                                },
+                                colors = colorText,
+                                placeholder = {
+                                    Text(
+                                        "Date of publishing", fontWeight = FontWeight(1000),
+                                        fontFamily = FontFamily(
+                                            Font(
+                                                resource = "fonts/Mukta-Medium.ttf",
+                                                style = FontStyle.Normal
+                                            )
+                                        ),
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 10.dp)
+                                    )
+                                },
+                                leadingIcon = {
+                                    IconButton(
+                                        onClick = { dateDialog.value = !dateDialog.value }
+                                    ) {
+                                        Icon(Icons.Rounded.DateRange, null)
+                                    }
+
+                                }
+                            )
+                        }
+                    }
+
+
+                }
+
+                LazyColumn(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                    item {
+                        Text(
+                            text = "DESCRIPTION",
+                            fontWeight = FontWeight(1000),
+                            fontFamily = FontFamily(
+                                Font(
+                                    resource = "fonts/Mukta-Medium.ttf",
+                                    style = FontStyle.Normal
+                                )
+                            ),
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(20.dp)
+                        )
+                    }
+
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth().padding(end = 20.dp, top = 20.dp)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                
                             }
 
-
+                            TextField(
+                                modifier = Modifier.fillMaxWidth().padding(end = 20.dp)
+                                    .requiredHeightIn(min = 300.dp),
+                                value = about,
+                                onValueChange = { about = it },
+                                minLines = 1,
+                                readOnly = false,
+                                placeholder = {
+                                    Text(
+                                        "sample text", fontWeight = FontWeight(1000),
+                                        fontFamily = FontFamily(
+                                            Font(
+                                                resource = "fonts/Mukta-Medium.ttf",
+                                                style = FontStyle.Normal
+                                            )
+                                        ),
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 10.dp),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                            )
                         }
+
                     }
                 }
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp),
-                    value = bookName,
-                    onValueChange = { bookName = it },
-                    maxLines = 3,
-                    readOnly = false,
-                    label = {
-                        Text(
-                            "Book Name", fontWeight = FontWeight(1000),
-                            fontFamily = FontFamily(
-                                Font(
-                                    resource = "fonts/Mukta-Medium.ttf",
-                                    style = FontStyle.Normal
-                                )
-                            ),
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
-                    },
-                    colors = colorText,
-                    placeholder = {
-                        Text(
-                            "Book Name", fontWeight = FontWeight(1000),
-                            fontFamily = FontFamily(
-                                Font(
-                                    resource = "fonts/Mukta-Medium.ttf",
-                                    style = FontStyle.Normal
-                                )
-                            ),
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
-                    }
-                )
-
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp),
-                    value = author,
-                    onValueChange = { author = it },
-                    maxLines = 3,
-                    readOnly = false,
-                    label = {
-                        Text(
-                            "Author Name", fontWeight = FontWeight(1000),
-                            fontFamily = FontFamily(
-                                Font(
-                                    resource = "fonts/Mukta-Medium.ttf",
-                                    style = FontStyle.Normal
-                                )
-                            ),
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
-                    },
-                    colors = colorText,
-                    placeholder = {
-                        Text(
-                            "Author Name", fontWeight = FontWeight(1000),
-                            fontFamily = FontFamily(
-                                Font(
-                                    resource = "fonts/Mukta-Medium.ttf",
-                                    style = FontStyle.Normal
-                                )
-                            ),
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
-                    }
-                )
-
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp),
-                    value = publisher,
-                    onValueChange = { publisher = it },
-                    maxLines = 3,
-                    readOnly = false,
-                    label = {
-                        Text(
-                            "Publisher Name", fontWeight = FontWeight(1000),
-                            fontFamily = FontFamily(
-                                Font(
-                                    resource = "fonts/Mukta-Medium.ttf",
-                                    style = FontStyle.Normal
-                                )
-                            ),
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
-                    },
-                    colors = colorText,
-                    placeholder = {
-                        Text(
-                            "Publisher Name", fontWeight = FontWeight(1000),
-                            fontFamily = FontFamily(
-                                Font(
-                                    resource = "fonts/Mukta-Medium.ttf",
-                                    style = FontStyle.Normal
-                                )
-                            ),
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
-                    }
-                )
-
-
-
-
-
-
             }
         }
 
 
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun datePicker(onDismiss: () -> Unit): String {
-        val date = remember { mutableStateOf("") }
-        val dateState = rememberDatePickerState(
-            initialDisplayMode = DisplayMode.Input,
-            initialDisplayedMonthMillis = LocalDateTime.now().monthValue.toLong()
-        )
-        Dialog(onDismissRequest = { onDismiss() }) {
-            Card {
-                Column {
-                    DatePicker(
-                        state = dateState,
-                        dateValidator = { it ->
-                            val instant = Instant.ofEpochMilli(it)
-                            true
-                        }
-                    )
-                }
-                TextButton(onClick = { onDismiss() }, modifier = Modifier.align(Alignment.End)) {
-                    Text("close")
-                }
-            }
-        }
-
-        return ""
-
-
+    private fun formatMillisecondsToDate(milliseconds: Long): String {
+        val instant = Instant.ofEpochMilli(milliseconds)
+        val zoneId = ZoneId.systemDefault() // You can change this to your desired time zone
+        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        println("time${formatter.toString()}")
+        return formatter.format(instant.atZone(zoneId))
     }
 
 
