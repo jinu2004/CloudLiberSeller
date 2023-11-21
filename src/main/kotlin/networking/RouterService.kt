@@ -11,7 +11,7 @@ import networking.dataclass.BookPreview
 interface RouterService {
     suspend fun getData():List<BookPreview>
     suspend fun uploadImageToGoogleStorage(imageByte:ByteArray)
-    suspend fun uploadDetails(fullDetails: BookFullDetails)
+    suspend fun uploadDetails(fullDetails: BookFullDetails , imageByte: ByteArray)
 
     companion object{
         fun create():ApiService{

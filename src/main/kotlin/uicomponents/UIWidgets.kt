@@ -9,13 +9,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aay.compose.baseComponents.model.LegendPosition
@@ -278,7 +280,28 @@ fun DonutChartSample(modifier: Modifier = Modifier) {
 
 
 
+private fun Modifier.dashedBorder(
+    color: Color,
+    shape: Shape,
+    strokeWidth: Dp = 1.dp,
+    dashWidth: Dp = 4.dp,
+    gapWidth: Dp = 4.dp,
+    cap: StrokeCap = StrokeCap.Round
+) = this.drawWithContent {
+    val outline = shape.createOutline(size, layoutDirection, this)
 
+    val path = Path()
+    path.addOutline(outline)
+
+
+
+    this.drawContent()
+
+    drawPath(
+        path = path,
+        color = color
+    )
+}
 
 
 

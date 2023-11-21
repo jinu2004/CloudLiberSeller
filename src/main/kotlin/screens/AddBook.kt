@@ -1,16 +1,19 @@
 package screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -19,14 +22,24 @@ import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import navcontroller.NavController
+import networking.RouterService
+import networking.dataclass.BookFullDetails
+import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import javax.imageio.ImageIO
 
 
 class AddBook(navController: NavController) {
+    private var apiService = RouterService.create()
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable
@@ -47,6 +60,8 @@ class AddBook(navController: NavController) {
         var price by rememberSaveable { mutableStateOf("") }
         var date by rememberSaveable { mutableStateOf("") }
         var publisher by rememberSaveable { mutableStateOf("") }
+
+
         val fictionSubgenre = listOf(
             "Mystery",
             "Science Fiction",
@@ -79,9 +94,10 @@ class AddBook(navController: NavController) {
         )
 
 
-        var datestate = rememberDatePickerState(
+        val datestate = rememberDatePickerState(
             initialDisplayMode = DisplayMode.Picker,
-            initialDisplayedMonthMillis = System.currentTimeMillis()
+            initialDisplayedMonthMillis = System.currentTimeMillis(),
+            initialSelectedDateMillis = System.currentTimeMillis()
         )
 
         var showFilePicker by remember { mutableStateOf(false) }
@@ -107,13 +123,16 @@ class AddBook(navController: NavController) {
         )
 
         Card(
-            modifier = Modifier.padding(30.dp).fillMaxSize(),
+            modifier = Modifier.padding(10.dp).fillMaxSize(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
 
+            if (datestate.selectedDateMillis != null)
+                date = formatMillisecondsToDate(datestate.selectedDateMillis!!.toLong())
+
             FilePicker(show = showFilePicker, fileExtensions = listOf("jpg", "png")) { file ->
                 if (file != null) {
-                    fileName = file.path
+                    coverPage = file.path
                 }
                 showFilePicker = !showFilePicker
 
@@ -125,30 +144,33 @@ class AddBook(navController: NavController) {
                         TextButton(onClick = {
                             dateDialog.value = !dateDialog.value
                             dateConfirm.value = !dateConfirm.value
-                        }, modifier = Modifier.align(Alignment.End)) {
+                        }, modifier = Modifier.align(Alignment.End).padding(10.dp)) {
                             Text("close")
                         }
                     },
                     onDismissRequest = { dateDialog.value = !dateDialog.value }
                 ) {
-                    val dateState = rememberDatePickerState(
-                        initialDisplayMode = DisplayMode.Picker,
-                        initialDisplayedMonthMillis = LocalDateTime.now().monthValue.toLong()
-                    )
                     DatePicker(
-                        state = dateState,
-                        dateValidator = { it ->
-                            date = formatMillisecondsToDate(it)
-                            dateConfirm.value
-                        },
-                        colors = colors
+                        state = datestate,
+                        colors = colors,
+                        showModeToggle = true
                     )
                 }
 
 
 
             Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                LazyColumn(modifier = Modifier.fillMaxWidth(0.5f).fillMaxHeight()) {
+                Column(Modifier.fillMaxWidth(0.3f).fillMaxHeight()) {
+                    Image(
+                        painterResource("drawbles/House bookshelves-bro.png"),
+                        null,
+                        Modifier.fillMaxSize().padding(10.dp),
+                        Alignment.Center,
+                        ContentScale.Fit
+                    )
+
+                }
+                LazyColumn(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
                     item {
                         Text(
                             text = "BOOK DETAILS",
@@ -543,8 +565,8 @@ class AddBook(navController: NavController) {
                         ) {
                             OutlinedTextField(
                                 modifier = Modifier.fillMaxWidth(0.45f),
-                                value = fileName,
-                                onValueChange = { fileName = it },
+                                value = coverPage,
+                                onValueChange = { coverPage = it },
                                 maxLines = 1,
                                 readOnly = true,
                                 label = {
@@ -628,67 +650,86 @@ class AddBook(navController: NavController) {
                         }
                     }
 
-
-                }
-
-                LazyColumn(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
                     item {
-                        Text(
-                            text = "DESCRIPTION",
-                            fontWeight = FontWeight(1000),
-                            fontFamily = FontFamily(
-                                Font(
-                                    resource = "fonts/Mukta-Medium.ttf",
-                                    style = FontStyle.Normal
-                                )
-                            ),
-                            fontSize = 20.sp,
-                            modifier = Modifier.padding(20.dp)
-                        )
-                    }
+                        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.5f)) {
+                            Text(
+                                text = "DESCRIPTION",
+                                fontWeight = FontWeight(1000),
+                                fontFamily = FontFamily(
+                                    Font(
+                                        resource = "fonts/Mukta-Medium.ttf",
+                                        style = FontStyle.Normal
+                                    )
+                                ),
+                                fontSize = 20.sp,
+                                modifier = Modifier.padding(20.dp)
+                            )
 
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth().padding(end = 20.dp, top = 20.dp)
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                verticalAlignment = Alignment.CenterVertically
+
+                            Card(
+                                modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 10.dp, bottom = 30.dp)
                             ) {
-                                
+                                TextField(
+                                    modifier = Modifier.fillMaxWidth().padding(start = 20.dp)
+                                        .requiredHeightIn(min = 300.dp),
+                                    value = about,
+                                    onValueChange = { about = it },
+                                    minLines = 1,
+                                    readOnly = false,
+                                    placeholder = {
+                                        Text(
+                                            "sample text", fontWeight = FontWeight(1000),
+                                            fontFamily = FontFamily(
+                                                Font(
+                                                    resource = "fonts/Mukta-Medium.ttf",
+                                                    style = FontStyle.Normal
+                                                )
+                                            ),
+                                            fontSize = 16.sp,
+                                            modifier = Modifier.padding(start = 10.dp),
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+                                )
                             }
 
-                            TextField(
-                                modifier = Modifier.fillMaxWidth().padding(end = 20.dp)
-                                    .requiredHeightIn(min = 300.dp),
-                                value = about,
-                                onValueChange = { about = it },
-                                minLines = 1,
-                                readOnly = false,
-                                placeholder = {
-                                    Text(
-                                        "sample text", fontWeight = FontWeight(1000),
-                                        fontFamily = FontFamily(
-                                            Font(
-                                                resource = "fonts/Mukta-Medium.ttf",
-                                                style = FontStyle.Normal
-                                            )
-                                        ),
-                                        fontSize = 16.sp,
-                                        modifier = Modifier.padding(start = 10.dp),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
-                            )
-                        }
 
+                        }
+                    }
+
+                    item {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            FloatingActionButton(onClick = {
+                                if (bookName.isNotBlank() && coverPage.isNotBlank() && genre.isNotBlank() && subgenre.isNotBlank()) {
+                                    val bookData = BookFullDetails(
+                                        about,
+                                        author,
+                                        coverPage,
+                                        date,
+                                        genre,
+                                        "1234",
+                                        price,
+                                        publisher,
+                                        rate,
+                                        subgenre,
+                                        bookName
+                                    )
+                                    uploadDetails(bookData)
+                                }
+
+                            }) {
+                                Icon(Icons.Rounded.Add, "")
+                            }
+                        }
                     }
                 }
+
             }
+
+
         }
-
-
     }
+
 
     private fun formatMillisecondsToDate(milliseconds: Long): String {
         val instant = Instant.ofEpochMilli(milliseconds)
@@ -698,5 +739,28 @@ class AddBook(navController: NavController) {
         return formatter.format(instant.atZone(zoneId))
     }
 
+    private fun uploadDetails(bookFullDetails: BookFullDetails) {
+        val scope = CoroutineScope(Dispatchers.IO)
+        val inputFile = File(bookFullDetails.coverPage)
+        try {
+            val byteArray = imageToByteArray(inputFile)
+
+            scope.launch {
+                withContext(Dispatchers.Main) {
+                    apiService.uploadDetails(bookFullDetails, byteArray)
+                }
+            }
+            println("Image converted to ByteArray successfully.")
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
+        }
+    }
+
+    private fun imageToByteArray(file: File): ByteArray {
+        val bufferedImage: BufferedImage = ImageIO.read(file)
+        val baos = ByteArrayOutputStream()
+        ImageIO.write(bufferedImage, "png", baos)
+        return baos.toByteArray()
+    }
 
 }
