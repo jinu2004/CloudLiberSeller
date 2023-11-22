@@ -47,10 +47,7 @@ dependencies {
     implementation("com.darkrockstudios:mpfilepicker:2.1.0")
 
 
-//    implementation("io.github.epicarchitect:calendar-compose-basis:1.0.5")
-//    implementation("io.github.epicarchitect:calendar-compose-ranges:1.0.5") // includes basis
-//    implementation("io.github.epicarchitect:calendar-compose-pager:1.0.5") // includes basis
-//    implementation("io.github.epicarchitect:calendar-compose-datepicker:1.0.5") // includes pager + ranges
+
 
 }
 

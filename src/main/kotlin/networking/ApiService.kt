@@ -7,6 +7,7 @@ import io.ktor.client.request.*
 import networking.dataclass.BookFullDetails
 import networking.dataclass.BookPreview
 import networking.dataclass.FireBaseStorageResponse
+import org.apache.hc.client5.http.classic.HttpClient
 
 class ApiService(private val client: HttpClient) : RouterService {
     override suspend fun getData(): List<BookPreview> {
