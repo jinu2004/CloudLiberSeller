@@ -1,15 +1,13 @@
 package networking
 
-import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import networking.dataclass.BookFullDetails
 import networking.dataclass.BookPreview
 import networking.dataclass.FireBaseStorageResponse
-import org.apache.hc.client5.http.classic.HttpClient
 
-class ApiService(private val client: HttpClient) : RouterService {
+class ApiService(private val client: io.ktor.client.HttpClient) : RouterService {
     override suspend fun getData(): List<BookPreview> {
         return try {
             val response = client.get(ApiRouter.GET) {
