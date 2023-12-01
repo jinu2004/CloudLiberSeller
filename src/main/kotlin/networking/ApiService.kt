@@ -58,7 +58,7 @@ class ApiService(private val client: io.ktor.client.HttpClient) : RouterService 
 
     override suspend fun uploadDetails(fullDetails: BookFullDetails, imageByte: ByteArray) {
         try {
-            val fileName = "books/${fullDetails.bookName}"
+            val fileName = "coverimages/${fullDetails.bookName}"
             val apiUrl = ApiRouter.FIREBASE_STORAGE + fileName
             val response = client.post(apiUrl) {
                 headers {
@@ -69,7 +69,7 @@ class ApiService(private val client: io.ktor.client.HttpClient) : RouterService 
             }
             println(response.body<FireBaseStorageResponse>().downloadTokens)
             val downloadToken = response.body<FireBaseStorageResponse>().downloadTokens
-            val filepath = "books%2F${fullDetails.bookName}"
+            val filepath = "coverimages%2F${fullDetails.bookName}"
 
             if (response.status.value == 200) {
                 fullDetails.coverPage =
