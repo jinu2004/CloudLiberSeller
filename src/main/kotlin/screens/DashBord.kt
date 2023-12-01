@@ -92,7 +92,6 @@ class DashBord(val navController: NavController) {
                                         modifier = Modifier.fillMaxWidth(0.3f).fillMaxHeight(0.5f)
                                             .padding(start = 20.dp),
                                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-                                        onClick = {showFilePicker = !showFilePicker}
                                     ) {
                                         Image(
                                             painter = painterResource("drawbles/book_2_FILL0_wght400_GRAD0_opsz24.svg"),

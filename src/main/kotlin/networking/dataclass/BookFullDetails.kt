@@ -8,6 +8,7 @@ data class BookFullDetails(
     val author: String,//
     var coverPage: String,
     val publishedDate: String,
+    val quantity:String,
     val genre: String,//
     val isbn: String,
     val price: String,

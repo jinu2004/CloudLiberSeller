@@ -25,10 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.application
+import androidx.compose.ui.window.*
 import colors.darkColor
 import colors.lightColor
 import navcontroller.CustomNavigationHost
@@ -36,11 +33,11 @@ import navcontroller.ListOfScreen
 import navcontroller.rememberNavController
 import uicomponents.navigationDock
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 fun App() {
     val screens = ListOfScreen.entries.toList()
+    val window = rememberWindowState()
     val navController by rememberNavController(ListOfScreen.DashBord.label)
     val currentScreen by remember {
         navController.currentScreen
@@ -74,7 +71,9 @@ fun App() {
                             IconButton(onClick = {}) {
                                 Icon(Icons.Outlined.Search, null, tint = MaterialTheme.colorScheme.onSurface)
                             }
-                            IconButton(onClick = {}) {
+                            IconButton(onClick = {
+
+                            }) {
                                 Icon(Icons.Outlined.Notifications, null, tint = MaterialTheme.colorScheme.onSurface)
                             }
                         }
@@ -99,7 +98,7 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         icon = painterResource("product_Logo/e70f5442-0b10-4f04-9c45-a7cf85257b18-7.ico"),
         title = "CloudLiber Seller",
-        state = WindowState(placement = WindowPlacement.Floating, width = 1500.dp, height = 800.dp)
+        state = WindowState(placement = WindowPlacement.Floating, width = 1500.dp, height = 800.dp),
     ) {
         App()
     }

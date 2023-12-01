@@ -1,6 +1,5 @@
 package screens
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,7 +40,7 @@ import javax.imageio.ImageIO
 class AddBook(navController: NavController) {
     private var apiService = RouterService.create()
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun View() {
         val genreExpand = remember { mutableStateOf(false) }
@@ -130,7 +129,7 @@ class AddBook(navController: NavController) {
             if (datestate.selectedDateMillis != null)
                 date = formatMillisecondsToDate(datestate.selectedDateMillis!!.toLong())
 
-            FilePicker(show = showFilePicker, fileExtensions = listOf("jpg", "png")) { file ->
+            FilePicker(show = showFilePicker, fileExtensions = listOf("jpg")) { file ->
                 if (file != null) {
                     coverPage = file.path
                 }
@@ -268,7 +267,7 @@ class AddBook(navController: NavController) {
                                 {
                                     DropdownMenuItem(
                                         onClick = {
-                                            genre = "Fiction"
+                                            genre = "fiction"
                                             genreExpand.value = !genreExpand.value
                                         },
                                         text = {
@@ -286,7 +285,7 @@ class AddBook(navController: NavController) {
                                         })
                                     DropdownMenuItem(
                                         onClick = {
-                                            genre = "Non Fiction"
+                                            genre = "nonfiction"
                                             genreExpand.value = !genreExpand.value
                                         },
                                         text = {
@@ -354,7 +353,7 @@ class AddBook(navController: NavController) {
                                     expanded = subGenreExpand.value,
                                     onDismissRequest = { subGenreExpand.value = !subGenreExpand.value }) {
 
-                                    if (genre == "Fiction") {
+                                    if (genre == "fiction") {
                                         fictionSubgenre.forEachIndexed { index, s ->
                                             DropdownMenuItem(
                                                 onClick = {
@@ -376,7 +375,7 @@ class AddBook(navController: NavController) {
                                                 }
                                             )
                                         }
-                                    } else if (genre == "Non Fiction") {
+                                    } else if (genre == "nonfiction") {
                                         nonFictionSubgenre.forEachIndexed { index, s ->
                                             DropdownMenuItem(
                                                 onClick = {
@@ -706,6 +705,7 @@ class AddBook(navController: NavController) {
                                         author,
                                         coverPage,
                                         date,
+                                        "20",
                                         genre,
                                         "1234",
                                         price,

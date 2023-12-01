@@ -3,6 +3,7 @@ package networking
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import networking.dataclass.BookFullDetails
 import networking.dataclass.BookPreview
 import networking.dataclass.FireBaseStorageResponse
@@ -68,7 +69,7 @@ class ApiService(private val client: io.ktor.client.HttpClient) : RouterService 
             }
             println(response.body<FireBaseStorageResponse>().downloadTokens)
             val downloadToken = response.body<FireBaseStorageResponse>().downloadTokens
-            val filepath = response.body<FireBaseStorageResponse>().name
+            val filepath = "books%2F${fullDetails.bookName}"
 
             if (response.status.value == 200) {
                 fullDetails.coverPage =
@@ -77,21 +78,18 @@ class ApiService(private val client: io.ktor.client.HttpClient) : RouterService 
                 try {
                     val response2 = client.post(ApiRouter.POST) {
                         header("API-KEY", ApiRouter.POST_APIKEY)
-                        header("Content-Type", "application/json")
+                        contentType(ContentType.Application.Json)
                         setBody(fullDetails)
                     }
 
                     println(response2.status.value)
                 } catch (e: RedirectResponseException) {
-                    // 3xx - responses
                     println("Error: ${e.response.status.description}")
                     return
                 } catch (e: ClientRequestException) {
-                    // 4xx - responses
                     println("Error: ${e.response.status.description}")
                     return
                 } catch (e: ServerResponseException) {
-                    // 5xx - responses
                     println("Error: ${e.response.status.description}")
                     return
                 } catch (e: Exception) {
@@ -99,6 +97,7 @@ class ApiService(private val client: io.ktor.client.HttpClient) : RouterService 
                     return
                 }
             }
+
 
         } catch (e: Exception) {
             return
